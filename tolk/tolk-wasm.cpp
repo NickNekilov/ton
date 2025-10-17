@@ -34,7 +34,29 @@
 
 using namespace tolk;
 
-static td::Result<std::string> compile_internal(char *config_json) {
+static void tolk_cleanup() {
+//  for (const auto v : G.all_functions) {
+//    delete v;
+//  }
+  G.all_builtins.clear();
+  G.all_functions.clear();
+  G.all_methods.clear();
+  G.all_contract_getters.clear();
+  G.all_global_vars.clear();
+  G.all_constants.clear();
+  G.all_structs.clear();
+  G.all_enums.clear();
+  G.all_src_files.clear();
+
+  G.symtable.clear();
+  G.persistent_mem.clear();
+
+  pipeline_cleanup();
+}
+
+static td::Result<std::string> tolk_compile_internal(char *config_json) {
+  tolk_cleanup();
+
   TRY_RESULT(input_json, td::json_decode(td::MutableSlice(config_json)))
   td::JsonObject& config = input_json.get_object();
 
@@ -53,14 +75,24 @@ static td::Result<std::string> compile_internal(char *config_json) {
   }
 
   std::ostringstream outs, errs;
-  std::cout.rdbuf(outs.rdbuf());
-  std::cerr.rdbuf(errs.rdbuf());
+  std::streambuf* old_out = std::cout.rdbuf(outs.rdbuf());
+  std::streambuf* old_err = std::cerr.rdbuf(errs.rdbuf());
+
   int exit_code = tolk_proceed(entrypoint_filename);
   if (exit_code != 0) {
+    std::cout.rdbuf(old_out);
+    std::cerr.rdbuf(old_err);
     return td::Status::Error(errs.str());
   }
 
-  TRY_RESULT(fift_res, fift::compile_asm_program(outs.str(), "/fiftlib/"));
+  auto load_file_data = [](const std::string path) -> td::Result<std::string> {
+    return G.settings.read_callback(CompilerSettings::FsReadCallbackKind::ReadFile, path.c_str());
+  };
+
+  TRY_RESULT(fift_res, fift::compile_asm_program_with_custom_loader(outs.str(), load_file_data, "@fiftlib"));
+
+  std::cout.rdbuf(old_out);
+  std::cerr.rdbuf(old_err);
 
   td::JsonBuilder result_json;
   auto obj = result_json.enter_object();
@@ -111,7 +143,7 @@ const char* version() {
 const char *tolk_compile(char *config_json, WasmFsReadCallback callback) {
   G.settings.read_callback = wrap_wasm_read_callback(callback);
 
-  td::Result<std::string> res = compile_internal(config_json);
+  td::Result<std::string> res = tolk_compile_internal(config_json);
 
   if (res.is_error()) {
     td::JsonBuilder error_res = td::JsonBuilder();

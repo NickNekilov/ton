@@ -27,6 +27,8 @@ struct FiftOutput {
   std::string output;
 };
 
+typedef std::function<td::Result<std::string>(const std::string)> load_file_data_t;
+
 // given a valid Fift code PROGRAM{ ... }END>c, compile_asm_program() returns this output
 // now it's used primarily for wasm output (see tolk-js, for example)
 struct CompiledProgramOutput {
@@ -43,4 +45,5 @@ td::Result<FiftOutput> mem_run_fift(std::string source, std::vector<std::string>
 td::Result<FiftOutput> mem_run_fift(SourceLookup source_lookup, std::vector<std::string> args);
 td::Result<td::Ref<vm::Cell>> compile_asm(td::Slice asm_code);
 td::Result<CompiledProgramOutput> compile_asm_program(std::string&& program_code, const std::string& fift_dir);
+td::Result<CompiledProgramOutput> compile_asm_program_with_custom_loader(std::string&& program_code, load_file_data_t load_file_data, const std::string& fift_dir);
 }  // namespace fift

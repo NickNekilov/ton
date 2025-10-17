@@ -78,6 +78,13 @@ if (USE_EMSCRIPTEN)
           -fexceptions
   )
   target_compile_options(tolkfiftlib PRIVATE -fexceptions -fno-stack-protector)
+elseif(EMULATOR_STATIC)
+  add_library(tolkfiftlib STATIC tolk-wasm.cpp ${TOLK_SOURCE})
+  target_include_directories(tolkfiftlib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+  target_link_libraries(tolkfiftlib PUBLIC fift-lib git)
+  if (APPLE)
+    set_target_properties(tolkfiftlib PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/tolk_export_list")
+  endif()
 endif ()
 
 install(TARGETS tolk RUNTIME DESTINATION bin)

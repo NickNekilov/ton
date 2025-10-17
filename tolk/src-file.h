@@ -102,6 +102,7 @@ class AllRegisteredSrcFiles {
   int last_parsed_file_id = -1;
 
 public:
+  void clear();
   const SrcFile* get_file(int file_id) const { return all_src_files.at(file_id); }
   const SrcFile* find_file(const std::string& realpath) const;
 

@@ -262,6 +262,10 @@ protected:
   }
 
 public:
+  static void clear() {
+    current_scope.scopes.clear();
+  }
+
   bool should_visit_function(FunctionPtr fun_ref) override {
     return fun_ref->is_code_function();
   }
@@ -347,6 +351,10 @@ void pipeline_resolve_identifiers_and_assign_symbols(FunctionPtr fun_ref) {
 
 void pipeline_resolve_identifiers_and_assign_symbols(StructPtr struct_ref) {
   AssignSymInsideFunctionVisitor().start_visiting_struct_fields(struct_ref);
+}
+
+void pipeline_cleanup() {
+  AssignSymInsideFunctionVisitor::clear();
 }
 
 } // namespace tolk

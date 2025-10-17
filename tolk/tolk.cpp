@@ -46,13 +46,13 @@ void on_assertion_failed(const char *description, const char *file_name, int lin
 }
 
 int tolk_proceed(const std::string &entrypoint_filename) {
-  type_system_init();
-  define_builtins();
-  lexer_init();
-
   // on any error, an exception is thrown, and the message is printed out below
   // (currently, only a single error can be printed)
   try {
+    type_system_init();
+    define_builtins();
+    lexer_init();
+
     pipeline_discover_and_parse_sources("@stdlib/common.tolk", entrypoint_filename);
 
     pipeline_register_global_symbols();

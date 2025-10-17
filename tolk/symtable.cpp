@@ -267,6 +267,10 @@ static void fire_error_redefinition_of_symbol(SrcLocation loc, const Symbol* pre
   throw ParseError(loc, "redefinition of built-in symbol");
 }
 
+void GlobalSymbolTable::clear() {
+  entries.clear();
+}
+
 void GlobalSymbolTable::add_global_symbol(const Symbol* sym) {
   auto key = key_hash(sym->name);
   auto [it, inserted] = entries.emplace(key, sym);

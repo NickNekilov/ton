@@ -34,6 +34,11 @@ const SrcFile* AllRegisteredSrcFiles::find_file(const std::string& realpath) con
   return nullptr;
 }
 
+void AllRegisteredSrcFiles::clear() {
+  all_src_files.clear();
+  last_parsed_file_id = -1;
+}
+
 const SrcFile* AllRegisteredSrcFiles::locate_and_register_source_file(const std::string& filename, SrcLocation included_from) {
   bool is_stdlib = filename.size() > 8 && filename.starts_with("@stdlib/");
 

@@ -424,6 +424,7 @@ class GlobalSymbolTable {
   }
 
 public:
+  void clear();
   void add_global_symbol(const Symbol* sym);
   void add_function(FunctionPtr f_sym) { add_global_symbol(f_sym); }
 

@@ -1155,7 +1155,7 @@ AsmOp push_const(SrcLocation loc, td::RefInt256 x);
 void define_builtins();
 void patch_builtins_after_stdlib_loaded();
 
-
+void pipeline_cleanup();
 
 /*
  *
